@@ -1,0 +1,10 @@
+
+{% extends "base.html" %}
+{% block content %}
+    <div style="text-align: center">
+        <h1>{{ text.title }}</h1>
+        <p>{{ text.content }}</p>
+        <br>
+        <img src="{{ url_for('static', path='biblio.avif') }}" alt="library">
+    </div>
+{% endblock %}
