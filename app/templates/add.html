@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <form method="post" action="{{ url_for('add_book_from_form') }}">
+        <label for="id">ID:</label><br>
+        <input name="id" id="id" type="number" required min="0"><br>
+        <label for="title">Title:</label><br>
+        <input name="title" id="title" type="text" required><br>
+        <label for="author">Author:</label><br>
+        <input name="author" id="author" type="text" required><br>
+        <label for="review">Review:</label><br>
+        <input name="review" id="review" type="number" required min="1" max="5">
+        <br><br>
+        <input type="submit" value="Add">
+        <input type="reset" value="Reset">
+    </form>
+
+{% endblock %}

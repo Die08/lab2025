@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Form
 from models.book import Book
 from models.review import Review
 from data.books import books
@@ -21,6 +21,15 @@ def get_all_books(
 @router.post("/")
 def add_book(book: Book):
     """Adds a new book."""
+    if book.id in books:
+        raise HTTPException(status_code=403, detail="Book ID already exists.")
+    books[book.id] = book
+    return "Book successfully added."
+
+
+@router.post("_form/")
+def add_book_from_form(book: Annotated[Book, Form()]):
+    """Adds a new book"""
     if book.id in books:
         raise HTTPException(status_code=403, detail="Book ID already exists.")
     books[book.id] = book
