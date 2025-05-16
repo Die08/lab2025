@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from routers import books, frontend
 from fastapi.staticfiles import StaticFiles
+from data.db import init_database
+from contextlib import asynccontextmanager
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # on start
+    init_database()
+    yield
+    # on close
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(books.router, tags=["books"])
 app.include_router(frontend.router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

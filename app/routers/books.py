@@ -1,91 +1,111 @@
 from fastapi import APIRouter, HTTPException, Path, Form
-from models.book import Book
 from models.review import Review
-from data.books import books
 from typing import Annotated
+from models.book import Book, BookPublic, BookCreate
+from data.db import SessionDep
+from sqlmodel import select
+
 
 router = APIRouter(prefix="/books")
 
 
 @router.get("/")
 def get_all_books(
+        session: SessionDep,
         sort: bool = False
-) -> list[Book]:
+) -> list[BookPublic]:
     """Returns the list of available books."""
+    statement = select(Book)
+    books = session.exec(statement).all()
     if sort:
-        return sorted(books.values(), key=lambda book: book.review)
+        return sorted(books, key=lambda book: book.review)
     else:
-        return list(books.values())
+        return books
 
 
 @router.post("/")
-def add_book(book: Book):
+def add_book(book: BookCreate, session: SessionDep):
     """Adds a new book."""
-    if book.id in books:
-        raise HTTPException(status_code=403, detail="Book ID already exists.")
-    books[book.id] = book
+    validated_book = Book.model_validate(book)
+    session.add(validated_book)
+    session.commit()
     return "Book successfully added."
 
 
 @router.post("_form/")
-def add_book_from_form(book: Annotated[Book, Form()]):
+def add_book_from_form(
+        book: Annotated[BookCreate, Form()],
+        session: SessionDep,
+):
     """Adds a new book"""
-    if book.id in books:
-        raise HTTPException(status_code=403, detail="Book ID already exists.")
-    books[book.id] = book
+    validated_book = Book.model_validate(book)
+    session.add(validated_book)
+    session.commit()
     return "Book successfully added."
 
 
 @router.delete("/")
-def delete_all_books():
+def delete_all_books(session: SessionDep):
     """Deletes all books."""
-    books.clear()
+    statement = select(Book)
+    session.exec(statement).delete()
+    session.commit()
     return "All books successfully deleted"
 
 
 @router.delete("/{id}")
 def delete_book(
+        session: SessionDep,
         id: Annotated[int, Path(description="The ID of the book to delete")]
 ):
     """Deletes the book with the given ID."""
-    try:
-        del books[id]
-        return "Book successfully deleted"
-    except KeyError:
+    book = session.get(Book, id)
+    if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
+    session.delete(book)
+    session.commit()
+    return "Book successfully deleted"
 
 
 @router.get("/{id}")
 def get_book_by_id(
+        session: SessionDep,
         id: Annotated[int, Path(description="The ID of the book to get")]
-) -> Book:
+) -> BookPublic:
     """Returns the book with the given id."""
-    try:
-        return books[id]
-    except KeyError:
+    book = session.get(Book, id)
+    if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
+    return book
 
 
 @router.post("/{id}/review")
 def add_review(
+        session: SessionDep,
         id: Annotated[int, Path(description="The ID of the book to which add the review")],
         review: Review
 ):
     """Adds a review to the book with the given ID."""
-    try:
-        books[id].review = review.review
-        return "Review successfully added"
-    except KeyError:
+    book = session.get(Book, id)
+    if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
+    book.review = review.review
+    session.commit()
+    return "Review successfully added"
 
 
 @router.put("/{id}")
 def update_book(
+        session: SessionDep,
         id: Annotated[int, Path(description="The ID of the book to update")],
-        book: Book
+        new_book: BookCreate
 ):
     """Updates the book with the given ID."""
-    if not id in books:
+    book = session.get(Book, id)
+    if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
-    books[id] = book
+    book.title = new_book.title
+    book.author = new_book.author
+    book.review = new_book.review
+    session.commit()
     return "Book successfully updated"
