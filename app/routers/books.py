@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Path, Form
-from models.review import Review
+from app.models.review import Review
 from typing import Annotated
-from models.book import Book, BookPublic, BookCreate
-from data.db import SessionDep
+from app.models.book import Book, BookPublic, BookCreate
+from app.data.db import SessionDep
 from sqlmodel import select
 
 
