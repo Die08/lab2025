@@ -5,8 +5,6 @@ from faker import Faker
 import os
 from app.models.book import Book
 
-#commento
-a=0
 sqlite_file_name = "app/data/database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False} #isabilita il controllo del thread di SQLite, necessario quando più thread/applicazioni condividono la stessa connessione.
