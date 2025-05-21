@@ -1,19 +1,25 @@
+'''modulo che definisce tutti gli endpoint FastAPI per la gestione delle risorse “Book”'''
 from fastapi import APIRouter, HTTPException, Path, Form
+#FastAPI: APIRouter per raggruppare gli endpoint, HTTPException per gestire errori HTTP,
+# Path e Form per parametrizzare path e form data.
 from app.models.review import Review
 from typing import Annotated
 from app.models.book import Book, BookPublic, BookCreate
+#Modelli: Review (schema Pydantic per validazione del voto), Book, BookPublic,
+# BookCreate (modelli SQLModel/Pydantic definiti in book.py).
 from app.data.db import SessionDep
+#Database: SessionDep, una dipendenza che fornisce la sessione di connessione.
 from sqlmodel import select
-
+#Select: funzione di utilità per interrogazioni SQLModel.
 
 router = APIRouter(prefix="/books")
-
+#Questo fa sì che tutte le rotte definite abbiano URL che iniziano con /books
 
 @router.get("/")
 def get_all_books(
-        session: SessionDep,
-        sort: bool = False
-) -> list[BookPublic]:
+        session: SessionDep, #iniettata automaticamente tramite la dependency SessionDep
+        sort: bool = False #flag facoltativo (default False); se True, ordina i libri in base al voto (review).
+) -> list[BookPublic]: # lista di istanze BookPublic (includono id, title, author, review) books.
     """Returns the list of available books."""
     statement = select(Book)
     books = session.exec(statement).all()
@@ -25,16 +31,18 @@ def get_all_books(
 
 @router.post("/")
 def add_book(book: BookCreate, session: SessionDep):
+    #nput: JSON conforme allo schema BookCreate (campi title, author, review con validazione 1–5
     """Adds a new book."""
-    validated_book = Book.model_validate(book)
+    validated_book = Book.model_validate(book) #model_validate trasforma e convalida il Pydantic model in un’istanza Book.
     session.add(validated_book)
     session.commit()
     return "Book successfully added."
 
 
 @router.post("_form/")
+#rispetto a add_book: i dati del libro arrivano da un form HTML anziché da JSON.
 def add_book_from_form(
-        book: Annotated[BookCreate, Form()],
+        book: Annotated[BookCreate, Form()], #legge campi title, author, review inviati come form-url-encoded.
         session: SessionDep,
 ):
     """Adds a new book"""
@@ -56,7 +64,7 @@ def delete_all_books(session: SessionDep):
 @router.delete("/{id}")
 def delete_book(
         session: SessionDep,
-        id: Annotated[int, Path(description="The ID of the book to delete")]
+        id: Annotated[int, Path(description="The ID of the book to delete")] #id: estratto dall’URL, validato come int
 ):
     """Deletes the book with the given ID."""
     book = session.get(Book, id)
