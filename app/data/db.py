@@ -4,6 +4,8 @@ from fastapi import Depends
 from faker import Faker
 import os
 from models.book import Book
+from models.user import User
+from models.book_user_link import BookUserLink
 
 
 sqlite_file_name = "app/data/database.db"
@@ -20,9 +22,19 @@ def init_database():
         f = Faker("it_IT")
         with Session(engine) as session:
             for i in range(10):
+                user = User(
+                    name=f.name(), birth_date=f.date_of_birth(), city=f.city())
+                session.add(user)
+            session.commit()
+            for i in range(10):
                 book = Book(title=f.sentence(nb_words=5), author=f.name(),
                             review=f.pyint(1, 5))
                 session.add(book)
+            session.commit()
+            for i in range(5):
+                link = BookUserLink(book_id=f.pyint(1, 10),
+                                    user_id=f.pyint(1, 10))
+                session.add(link)
             session.commit()
 
 

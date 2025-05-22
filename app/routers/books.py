@@ -3,7 +3,7 @@ from models.review import Review
 from typing import Annotated
 from models.book import Book, BookPublic, BookCreate
 from data.db import SessionDep
-from sqlmodel import select
+from sqlmodel import select, delete
 
 
 router = APIRouter(prefix="/books")
@@ -47,8 +47,8 @@ def add_book_from_form(
 @router.delete("/")
 def delete_all_books(session: SessionDep):
     """Deletes all books."""
-    statement = select(Book)
-    session.exec(statement).delete()
+    statement = delete(Book)
+    session.exec(statement)
     session.commit()
     return "All books successfully deleted"
 
@@ -90,6 +90,7 @@ def add_review(
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     book.review = review.review
+    session.add(book)
     session.commit()
     return "Review successfully added"
 
@@ -107,5 +108,6 @@ def update_book(
     book.title = new_book.title
     book.author = new_book.author
     book.review = new_book.review
+    session.add(book)
     session.commit()
     return "Book successfully updated"

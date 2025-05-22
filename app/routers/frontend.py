@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/", response_class=HTMLResponse)
-def home(request: Request):
+async def home(request: Request):
     text = {
         "title": "Welcome to the library",
         "content": "Have you ever seen this place?"
@@ -32,7 +32,7 @@ def show_book_list(request: Request, session: SessionDep):
 
 
 @router.get("/add_book", response_class=HTMLResponse)
-def add_book_form(request: Request):
+async def add_book_form(request: Request):
     return templates.TemplateResponse(
         request=request, name="add.html"
     )
