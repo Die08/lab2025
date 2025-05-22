@@ -31,6 +31,7 @@ app.include_router(books.router, tags=["books"])
 app.include_router(frontend.router)
 #frontend.router: rotte che servono pagine HTML (/, /book_list, /add_book).
 # Non usa tag, così non compare nella sezione API docs come risorsa “books”
+app.include_router(frontend.router, tags=["users"])
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 #Rende disponibili i file presenti in app/static (es. styles.css, biblio.avif) all’URL /static/..
 

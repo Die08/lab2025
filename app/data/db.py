@@ -3,7 +3,11 @@ from typing import Annotated
 from fastapi import Depends
 from faker import Faker
 import os
-from app.models.book import Book
+
+from websockets.version import commit
+
+from app.models.book import Book # NOQA
+from app.models.user import User
 
 sqlite_file_name = "app/data/database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -21,8 +25,13 @@ def init_database():
         f = Faker("it_IT") #crea un oggetto Faker per generare dati fake.
         with Session(engine) as session:
             for i in range(10):
+                user = User(name=f.name(), birthdate=f.date_of_birth(), city=f.city())
+                session.add(user)
+            session.commit()
+            for i in range(10):
                 book = Book(title=f.sentence(nb_words=5), author=f.name(), # se il file non esisteva (not ds_exists), viene istanziato Faker("it_IT") per generare 10 record fittizi con titolo (sentence), autore (name) e voto recensione (pyint(1,5)),
-                            review=f.pyint(1, 5))
+                            review=f.pyint(1, 5),
+                            user_id=f.pyint(1, 10))
                 session.add(book)
             session.commit() #aggiunti e infine salvati (commit()).
 

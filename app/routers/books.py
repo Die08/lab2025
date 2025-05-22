@@ -9,7 +9,7 @@ from app.models.book import Book, BookPublic, BookCreate
 # BookCreate (modelli SQLModel/Pydantic definiti in book.py).
 from app.data.db import SessionDep
 #Database: SessionDep, una dipendenza che fornisce la sessione di connessione.
-from sqlmodel import select
+from sqlmodel import select, delete
 #Select: funzione di utilità per interrogazioni SQLModel.
 
 router = APIRouter(prefix="/books")
@@ -55,8 +55,8 @@ def add_book_from_form(
 @router.delete("/")
 def delete_all_books(session: SessionDep):
     """Deletes all books."""
-    statement = select(Book)
-    session.exec(statement).delete()
+    statement = delete(Book)
+    session.exec(statement)
     session.commit()
     return "All books successfully deleted"
 
@@ -98,6 +98,7 @@ def add_review(
     if book is None:
         raise HTTPException(status_code=404, detail="Book not found")
     book.review = review.review
+    session.add(book)
     session.commit()
     return "Review successfully added"
 

@@ -18,7 +18,6 @@ class Book(BookBase, table=True): #table=True indica a SQLModel di creare una ta
     id: int = Field(default=None, primary_key=True) #Il campo id è dichiarato intero, con primary_key=True
     # per marcare la chiave primaria; default=None permette al database di assegnare automaticamente un valore (autoincrement)
 
-
 class BookCreate(BookBase):
     pass
 #Viene usato come schema d’ingresso (request body) nelle API quando si crea un nuovo libro;
