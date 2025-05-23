@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import Depends
 from faker import Faker
 import os
-from models.book import Book
-from models.user import User
-from models.book_user_link import BookUserLink
+from app.models.book import Book
+from app.models.user import User
+from app.models.book_user_link import BookUserLink
 
 
 sqlite_file_name = "app/data/database.db"

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from data.db import SessionDep
+from app.data.db import SessionDep
 from sqlmodel import select
 from app.models.user import User, UserPublic
 from app.models.book import Book, BookPublic
