@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Path, Form
 # Path e Form per parametrizzare path e form data.
 from app.models.review import Review
 from typing import Annotated
+
 from app.models.book import Book, BookPublic, BookCreate
 #Modelli: Review (schema Pydantic per validazione del voto), Book, BookPublic,
 # BookCreate (modelli SQLModel/Pydantic definiti in book.py).

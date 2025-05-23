@@ -1,19 +1,17 @@
+from datetime import date
 from sqlmodel import SQLModel, Field
-from datetime import datetime
 
 
-
-
-class BaseUser(SQLModel): #classe base definiscce utente
+class BaseUser(SQLModel):
     name: str
-    birthdate: str
     city: str
 
+
 class User(BaseUser, table=True):
-    id: int| None = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
 
 
-class Bookpublic(BaseUser):
+class UserPublic(BaseUser):
     pass
 
 

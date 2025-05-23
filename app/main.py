@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 #FastAPI: classe principale per creare l’applicazione.
-from routers import books, frontend
+from routers import books, frontend, users
 #routers.books e routers.frontend: moduli in cui hai definito tutti gli endpoint API (/books)
 # e le rotte di rendering dei template Jinja2.
 from fastapi.staticfiles import StaticFiles
@@ -29,9 +29,9 @@ app.include_router(books.router, tags=["books"])
 #books.router: tutti gli endpoint CRUD (/books, /books/{id}, /books/{id}/review, ecc.).
 # Viene anche taggato con "books" per raggrupparli nella documentazione Swagger/OpenAPI.
 app.include_router(frontend.router)
+app.include_router(users.router, tags=["users"])
 #frontend.router: rotte che servono pagine HTML (/, /book_list, /add_book).
 # Non usa tag, così non compare nella sezione API docs come risorsa “books”
-app.include_router(frontend.router, tags=["users"])
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 #Rende disponibili i file presenti in app/static (es. styles.css, biblio.avif) all’URL /static/..
 
